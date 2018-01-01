@@ -33,17 +33,20 @@ public class TCPServer
                 ObjectOutputStream ooStream = new ObjectOutputStream(oStream);
 
 
-                for (Schedule elem : payload) {
-                    ooStream.writeObject(elem);
-                    Thread.sleep(100);
-                }
-
-                System.out.println("Sent");
-
+                InputStream iSteam = sock.getInputStream();
                 while(true) {
-                    InputStream iSteam = sock.getInputStream();
+
+                    for (Schedule elem : payload) {
+                        if (!elem.isDeleted()) ooStream.writeObject(elem);
+                        Thread.sleep(100);
+                    }
+                    System.out.println("Sent");
+
                     ObjectInputStream oiStream = new ObjectInputStream(iSteam);
                     Schedule schedule = (Schedule) oiStream.readObject();
+
+                    new MessageHandler(payload, schedule).handle();
+
                     System.out.println(schedule);
                     Thread.sleep(1000);
                 }
